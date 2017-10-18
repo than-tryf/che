@@ -40,6 +40,7 @@ import org.eclipse.che.workspace.infrastructure.openshift.provision.Configuratio
 public class PersistentVolumeClaimProvisioner implements ConfigurationProvisioner {
 
   private final boolean pvcEnable;
+  private final boolean perWorkspace;
   private final String pvcName;
   private final String pvcQuantity;
   private final String pvcAccessMode;
@@ -48,11 +49,13 @@ public class PersistentVolumeClaimProvisioner implements ConfigurationProvisione
   @Inject
   public PersistentVolumeClaimProvisioner(
       @Named("che.infra.openshift.pvc.enabled") boolean pvcEnable,
+      @Named("che.infra.openshift.pvc.one_per_workspace") boolean perWorkspace,
       @Named("che.infra.openshift.pvc.name") String pvcName,
       @Named("che.infra.openshift.pvc.quantity") String pvcQuantity,
       @Named("che.infra.openshift.pvc.access_mode") String pvcAccessMode,
       @Named("che.workspace.projects.storage") String projectFolderPath) {
     this.pvcEnable = pvcEnable;
+    this.perWorkspace = perWorkspace;
     this.pvcName = pvcName;
     this.pvcQuantity = pvcQuantity;
     this.pvcAccessMode = pvcAccessMode;
@@ -64,13 +67,15 @@ public class PersistentVolumeClaimProvisioner implements ConfigurationProvisione
       InternalEnvironment environment, OpenShiftEnvironment osEnv, RuntimeIdentity runtimeIdentity)
       throws InfrastructureException {
     if (pvcEnable) {
+      final String workspaceId = runtimeIdentity.getWorkspaceId();
+      final String pvcUniqueName = perWorkspace ? pvcName + '-' + workspaceId : pvcName;
       osEnv
           .getPersistentVolumeClaims()
           .put(
-              pvcName,
+              pvcUniqueName,
               new PersistentVolumeClaimBuilder()
                   .withNewMetadata()
-                  .withName(pvcName)
+                  .withName(pvcUniqueName)
                   .endMetadata()
                   .withNewSpec()
                   .withAccessModes(pvcAccessMode)
@@ -79,24 +84,24 @@ public class PersistentVolumeClaimProvisioner implements ConfigurationProvisione
                   .endResources()
                   .endSpec()
                   .build());
-      String devMachineName =
+      final String machineWithSources =
           WsAgentMachineFinderUtil.getWsAgentServerMachine(environment)
               .orElseThrow(() -> new InfrastructureException("Machine with wsagent not found"));
       for (Pod pod : osEnv.getPods().values()) {
         for (Container container : pod.getSpec().getContainers()) {
           final String machineName = pod.getMetadata().getName() + "/" + container.getName();
-          if (devMachineName.equals(machineName)) {
+          if (machineWithSources.equals(machineName)) {
             final VolumeMount volumeMount =
                 new VolumeMountBuilder()
                     .withMountPath(projectFolderPath)
-                    .withName(pvcName)
+                    .withName(pvcUniqueName)
                     .withSubPath(runtimeIdentity.getWorkspaceId() + projectFolderPath)
                     .build();
             container.getVolumeMounts().add(volumeMount);
             final PersistentVolumeClaimVolumeSource pvcs =
-                new PersistentVolumeClaimVolumeSourceBuilder().withClaimName(pvcName).build();
+                new PersistentVolumeClaimVolumeSourceBuilder().withClaimName(pvcUniqueName).build();
             final Volume volume =
-                new VolumeBuilder().withPersistentVolumeClaim(pvcs).withName(pvcName).build();
+                new VolumeBuilder().withPersistentVolumeClaim(pvcs).withName(pvcUniqueName).build();
             pod.getSpec().getVolumes().add(volume);
             return;
           }

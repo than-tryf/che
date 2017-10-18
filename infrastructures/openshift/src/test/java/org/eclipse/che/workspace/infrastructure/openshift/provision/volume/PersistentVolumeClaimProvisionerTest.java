@@ -50,9 +50,12 @@ import org.testng.annotations.Test;
 @Listeners(MockitoTestNGListener.class)
 public class PersistentVolumeClaimProvisionerTest {
 
-  @Mock private InternalEnvironment environment;
-  @Mock private OpenShiftEnvironment osEnv;
-  @Mock private RuntimeIdentity runtimeIdentity;
+  @Mock
+  private InternalEnvironment environment;
+  @Mock
+  private OpenShiftEnvironment osEnv;
+  @Mock
+  private RuntimeIdentity runtimeIdentity;
 
   private PersistentVolumeClaimProvisioner pvcProvisioner;
 
@@ -60,7 +63,7 @@ public class PersistentVolumeClaimProvisionerTest {
   public void doNothingWhenPVCDisabled() throws Exception {
     pvcProvisioner =
         new PersistentVolumeClaimProvisioner(
-            false, "claim-che-workspace", "10Gi", "ReadWriteOnce", "/projects");
+            false, true, "claim-che-workspace", "10Gi", "ReadWriteOnce", "/projects");
 
     pvcProvisioner.provision(environment, osEnv, runtimeIdentity);
 
@@ -72,7 +75,7 @@ public class PersistentVolumeClaimProvisionerTest {
   public void provisionPVC() throws Exception {
     pvcProvisioner =
         new PersistentVolumeClaimProvisioner(
-            true, "claim-che-workspace", "10Gi", "ReadWriteOnce", "/projects");
+            true, true, "claim-che-workspace", "10Gi", "ReadWriteOnce", "/projects");
     final Map<String, PersistentVolumeClaim> pvcs = new HashMap<>();
     when(osEnv.getPersistentVolumeClaims()).thenReturn(pvcs);
     final InternalMachineConfig devMachine = mock(InternalMachineConfig.class);
