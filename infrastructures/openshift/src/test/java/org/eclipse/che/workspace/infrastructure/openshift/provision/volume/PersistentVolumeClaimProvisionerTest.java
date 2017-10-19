@@ -50,12 +50,9 @@ import org.testng.annotations.Test;
 @Listeners(MockitoTestNGListener.class)
 public class PersistentVolumeClaimProvisionerTest {
 
-  @Mock
-  private InternalEnvironment environment;
-  @Mock
-  private OpenShiftEnvironment osEnv;
-  @Mock
-  private RuntimeIdentity runtimeIdentity;
+  @Mock private InternalEnvironment environment;
+  @Mock private OpenShiftEnvironment osEnv;
+  @Mock private RuntimeIdentity runtimeIdentity;
 
   private PersistentVolumeClaimProvisioner pvcProvisioner;
 

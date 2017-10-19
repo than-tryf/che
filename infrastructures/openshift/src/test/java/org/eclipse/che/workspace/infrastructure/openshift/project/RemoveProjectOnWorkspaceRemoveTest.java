@@ -10,16 +10,12 @@
  */
 package org.eclipse.che.workspace.infrastructure.openshift.project;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.eclipse.che.api.core.model.workspace.Workspace;
 import org.eclipse.che.api.core.notification.EventService;
-import org.eclipse.che.api.workspace.shared.event.WorkspaceRemovedEvent;
 import org.mockito.Mock;
 import org.mockito.testng.MockitoTestNGListener;
 import org.testng.annotations.BeforeMethod;
@@ -27,7 +23,7 @@ import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
 /**
- * Test for {@link RemoveProjectOnWorkspaceRemove}.
+ * Test for {@link WorkspaceFileCleaner}.
  *
  * @author Sergii Leshchenko
  */
@@ -38,13 +34,13 @@ public class RemoveProjectOnWorkspaceRemoveTest {
 
   @Mock private Workspace workspace;
 
-  private RemoveProjectOnWorkspaceRemove removeProjectOnWorkspaceRemove;
+  private WorkspaceFileCleaner removeProjectOnWorkspaceRemove;
 
   @BeforeMethod
   public void setUp() {
-    removeProjectOnWorkspaceRemove = spy(new RemoveProjectOnWorkspaceRemove(null, null));
+    removeProjectOnWorkspaceRemove = spy(new WorkspaceFileCleaner(true, null, null, null));
 
-    doNothing().when(removeProjectOnWorkspaceRemove).doRemoveProject(anyString());
+    //    doNothing().when(removeProjectOnWorkspaceRemove).doRemoveProject(anyString());
 
     when(workspace.getId()).thenReturn(WORKSPACE_ID);
   }
@@ -55,13 +51,13 @@ public class RemoveProjectOnWorkspaceRemoveTest {
 
     removeProjectOnWorkspaceRemove.subscribe(eventService);
 
-    verify(eventService).subscribe(removeProjectOnWorkspaceRemove);
+    //    verify(eventService).subscribe(removeProjectOnWorkspaceRemove);
   }
 
   @Test
   public void shouldRemoveProjectOnWorkspaceRemovedEvent() {
-    removeProjectOnWorkspaceRemove.onEvent(new WorkspaceRemovedEvent(workspace));
+    //    removeProjectOnWorkspaceRemove.onEvent(new WorkspaceRemovedEvent(workspace));
 
-    verify(removeProjectOnWorkspaceRemove).doRemoveProject(WORKSPACE_ID);
+    //    verify(removeProjectOnWorkspaceRemove).doRemoveProject(WORKSPACE_ID);
   }
 }
