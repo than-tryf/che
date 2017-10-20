@@ -38,9 +38,9 @@ public class WorkspaceFileCleaner {
 
   @Inject
   public WorkspaceFileCleaner(
-      @Named("che.infra.openshift.pvc.one_per_workspace") boolean pvcStrategy,
       @Nullable @Named("che.infra.openshift.project") String projectName,
       @Named("che.infra.openshift.pvc.name") String pvcName,
+      @Named("che.infra.openshift.pvc.one_per_workspace") boolean pvcStrategy,
       OpenShiftClientFactory clientFactory) {
     this.clientFactory = clientFactory;
     this.pvcStrategy = pvcStrategy;
@@ -54,9 +54,9 @@ public class WorkspaceFileCleaner {
       eventService.subscribe(new RemoveProjectOnWorkspaceRemove());
     } else {
       if (pvcStrategy) {
-        // TODO implement https://github.com/eclipse/che/issues/6767
-      } else {
         eventService.subscribe(new RemoveProjectPvcOnWokrspaceRemove());
+      } else {
+        // TODO implement https://github.com/eclipse/che/issues/6767
       }
     }
   }

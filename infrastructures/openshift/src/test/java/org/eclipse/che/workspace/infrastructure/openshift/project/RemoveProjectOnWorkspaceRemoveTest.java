@@ -38,7 +38,7 @@ public class RemoveProjectOnWorkspaceRemoveTest {
 
   @BeforeMethod
   public void setUp() {
-    removeProjectOnWorkspaceRemove = spy(new WorkspaceFileCleaner(true, null, null, null));
+    removeProjectOnWorkspaceRemove = spy(new WorkspaceFileCleaner(null, null, true, null));
 
     //    doNothing().when(removeProjectOnWorkspaceRemove).doRemoveProject(anyString());
 
